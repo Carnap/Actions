@@ -1,0 +1,23 @@
+name: 'Release changes on main to releases/v1 if they are ok'
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run test
+      - run: |
+          npm run lint
+      - run: |
+          npm run package
+      - run: |
+          git add dist
+          git commit -m 'build output'
+          git push -f origin releases/v1
