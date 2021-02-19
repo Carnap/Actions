@@ -16,6 +16,8 @@ jobs:
       - run: |
           npm run lint
       - run: |
+          npm run build
+      - run: |
           npm run package
       - run: |
           git add dist
