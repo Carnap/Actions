@@ -37,6 +37,11 @@ async function entry(): Promise<void> {
             }
         )
 
+        myAxios.interceptors.request.use(config => {
+            core.debug(`request: ${config.method} ${config.url} ${config.data}`)
+            return config
+        })
+
         const paths = JSON.parse(core.getInput('includeFiles'))
         if (!(paths instanceof Array)) {
             throw new Error('includeFiles is not an array of strings')
