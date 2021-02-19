@@ -1,8 +1,10 @@
 import * as core from '@actions/core'
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import rateLimit from 'axios-rate-limit'
 import glob from 'glob'
-import {CarnapUploadJob, isValidDocumentPrivacy} from './upload'
+import yargs from 'yargs'
+import { DocumentPrivacy } from './api'
+import {CarnapUploadJob, isValidDocumentPrivacy, Logger} from './upload'
 
 /**
  * async/Promise wrapper for the glob function that searches relative to the
@@ -11,6 +13,7 @@ import {CarnapUploadJob, isValidDocumentPrivacy} from './upload'
  */
 async function doGlob(pat: string, repoRoot: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
+        console.log(`pat pat pat pat ${pat}`)
         glob(pat, {root: repoRoot, cwd: repoRoot}, (err, resp) => {
             if (err) {
                 reject(err)
@@ -21,24 +24,31 @@ async function doGlob(pat: string, repoRoot: string): Promise<string[]> {
     })
 }
 
-async function entry(): Promise<void> {
-    try {
-        const apiKey = core.getInput('apiKey')
-        core.setSecret(apiKey)
-        const myAxios = rateLimit(
+function makeAxios(instanceUrl: string, apiKey: string): AxiosInstance {
+        return rateLimit(
             axios.create({
-                baseURL: `${core.getInput('instanceUrl')}/api/v1`,
+                baseURL: `${instanceUrl}/api/v1`,
                 headers: {
                     'X-API-KEY': apiKey,
                 },
             }),
             {
-                maxRPS: 1.5,
+                maxRPS: 1,
             }
         )
+}
+
+async function actionsEntry(): Promise<void> {
+    try {
+        const apiKey = core.getInput('apiKey')
+        core.setSecret(apiKey)
+        const instanceUrl = core.getInput('instanceUrl')
+        core.info(`Uploading to ${instanceUrl}`)
+
+        const myAxios = makeAxios(instanceUrl, apiKey)
 
         myAxios.interceptors.request.use(config => {
-            core.debug(`request: ${config.method} ${config.url} ${config.data}`)
+            core.debug(`request: ${config.method} ${config.url}`)
             return config
         })
 
@@ -71,4 +81,99 @@ async function entry(): Promise<void> {
     }
 }
 
-entry()
+interface Args {
+    basePath: string
+    includeFiles: string
+    url: string
+    defaultVisibility: DocumentPrivacy
+}
+
+function parseArgs(): Args {
+    return yargs.usage(`CARNAP_API_KEY=... $0 -b <basepath> -i '<includeFilesJsonList>' [options]`)
+        .option(
+            'basePath', {
+                alias: 'b',
+                description: 'base path to the files to upload',
+                type: 'string',
+                demandOption: true,
+            },
+        )
+        .option(
+            'includeFiles', {
+                alias: 'i',
+                description: 'JSON list of globs matching files to include',
+                type: 'string',
+                demandOption: true,
+            }
+        )
+        .option(
+            'url', {
+                description: 'URL to the Carnap instance to upload to',
+                type: 'string',
+                default: 'https://carnap.io'
+            }
+        )
+        .option('defaultVisibility', {
+            description: 'Default visibility of newly created documents.',
+            choices: ['Public', 'InstructorsOnly', 'LinkOnly', 'Private'],
+            default: 'Private'
+        })
+        .argv as Args
+    // mild sin here, the reason we have to cast this is because tsc does
+    // not recognize the limited values of defaultVisibility
+}
+
+const cliLog: Logger = {
+    debug(msg) {
+        console.debug(msg)
+    },
+
+    info(msg) {
+        console.info(msg)
+    },
+
+    warning(msg) {
+        console.warn(msg)
+    }
+}
+
+async function cliEntry(): Promise<void> {
+    const argv = parseArgs()
+    const paths = JSON.parse(argv.includeFiles)
+
+    if (!(paths instanceof Array)) {
+        throw new Error("paths is not a json array!")
+    }
+    
+    const apiKey = process.env['CARNAP_API_KEY']
+    if (!apiKey) {
+        throw new Error("CARNAP_API_KEY environment variable missing")
+    }
+
+    const myAxios = makeAxios(argv.url, apiKey)
+
+    myAxios.interceptors.request.use(config => {
+        core.debug(`request: ${config.method} ${config.url}`)
+        return config
+    })
+
+    const filePaths = (
+        await Promise.all(paths.map(async p => await doGlob(p, argv.basePath)))
+    ).flat()
+
+    await new CarnapUploadJob(
+        myAxios,
+        filePaths,
+        argv.defaultVisibility,
+        core
+    ).run()
+}
+
+// run as a GitHub action if we are running in that environment, otherwise run
+// as a cli tool
+if (process.env['GITHUB_WORKFLOW']) {
+    actionsEntry()
+} else {
+    cliEntry()
+}
+

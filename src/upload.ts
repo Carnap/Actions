@@ -51,6 +51,7 @@ export class CarnapUploadJob {
         // maps from basename to full path
         const basenameToFullPath: {[basename: string]: string} = {}
         for (const fp of this.filePaths) {
+            this.logger.debug(`will upload ${fp}`)
             const fileBasename = basename(fp)
 
             if (basenameToFullPath[fileBasename]) {
@@ -70,6 +71,7 @@ export class CarnapUploadJob {
         const toCreate = []
         for (const fp of Object.keys(basenameToFullPath)) {
             if (!basenameToId[basename(fp)]) {
+                this.logger.debug(`to create: ${fp}`)
                 toCreate.push(fp)
             }
         }
@@ -109,7 +111,7 @@ export class CarnapUploadJob {
             Object.entries(filenameIds).map(async ([name, id]) => {
                 const fileContents = await readFile(basenameToFullPath[name])
                 await this.myAxios.put(
-                    `/instructors/${ident}/documents/${id}`,
+                    `/instructors/${ident}/documents/${id}/data`,
                     fileContents
                 )
             })

@@ -86,11 +86,11 @@ test('file upload works', async () => {
     await job.uploadFiles('a@aa', {a: 1, c: 2}, {a: '/a/b/c', c: 'c'})
 
     expect(mockedAxios.put).toBeCalledWith(
-        '/instructors/a@aa/documents/1',
+        '/instructors/a@aa/documents/1/data',
         'blah'
     )
     expect(mockedAxios.put).toBeCalledWith(
-        '/instructors/a@aa/documents/2',
+        '/instructors/a@aa/documents/2/data',
         'c++'
     )
 })
