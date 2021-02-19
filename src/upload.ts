@@ -62,9 +62,9 @@ export class CarnapUploadJob {
         }
 
         // ignore files that are only on the server
-        for (const basename in basenameToId) {
-            if (!basenameToFullPath[basename]) {
-                delete basenameToId[basename]
+        for (const fileBasename in basenameToId) {
+            if (!basenameToFullPath[fileBasename]) {
+                delete basenameToId[fileBasename]
             }
         }
 

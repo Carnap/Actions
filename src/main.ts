@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
-import axios, { AxiosInstance } from 'axios'
+import axios, {AxiosInstance} from 'axios'
 import rateLimit from 'axios-rate-limit'
 import glob from 'glob'
 import yargs from 'yargs'
-import { DocumentPrivacy } from './api'
+import {DocumentPrivacy} from './api'
 import {CarnapUploadJob, isValidDocumentPrivacy, Logger} from './upload'
 
 /**
@@ -13,7 +13,6 @@ import {CarnapUploadJob, isValidDocumentPrivacy, Logger} from './upload'
  */
 async function doGlob(pat: string, repoRoot: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        console.log(`pat pat pat pat ${pat}`)
         glob(pat, {root: repoRoot, cwd: repoRoot}, (err, resp) => {
             if (err) {
                 reject(err)
@@ -25,17 +24,17 @@ async function doGlob(pat: string, repoRoot: string): Promise<string[]> {
 }
 
 function makeAxios(instanceUrl: string, apiKey: string): AxiosInstance {
-        return rateLimit(
-            axios.create({
-                baseURL: `${instanceUrl}/api/v1`,
-                headers: {
-                    'X-API-KEY': apiKey,
-                },
-            }),
-            {
-                maxRPS: 1,
-            }
-        )
+    return rateLimit(
+        axios.create({
+            baseURL: `${instanceUrl}/api/v1`,
+            headers: {
+                'X-API-KEY': apiKey,
+            },
+        }),
+        {
+            maxRPS: 1,
+        }
+    )
 }
 
 async function actionsEntry(): Promise<void> {
@@ -89,40 +88,37 @@ interface Args {
 }
 
 function parseArgs(): Args {
-    return yargs.usage(`CARNAP_API_KEY=... $0 -b <basepath> -i '<includeFilesJsonList>' [options]`)
-        .option(
-            'basePath', {
-                alias: 'b',
-                description: 'base path to the files to upload',
-                type: 'string',
-                demandOption: true,
-            },
+    return yargs
+        .usage(
+            `CARNAP_API_KEY=... $0 -b <basepath> -i '<includeFilesJsonList>' [options]`
         )
-        .option(
-            'includeFiles', {
-                alias: 'i',
-                description: 'JSON list of globs matching files to include',
-                type: 'string',
-                demandOption: true,
-            }
-        )
-        .option(
-            'url', {
-                description: 'URL to the Carnap instance to upload to',
-                type: 'string',
-                default: 'https://carnap.io'
-            }
-        )
+        .option('basePath', {
+            alias: 'b',
+            description: 'base path to the files to upload',
+            type: 'string',
+            demandOption: true,
+        })
+        .option('includeFiles', {
+            alias: 'i',
+            description: 'JSON list of globs matching files to include',
+            type: 'string',
+            demandOption: true,
+        })
+        .option('url', {
+            description: 'URL to the Carnap instance to upload to',
+            type: 'string',
+            default: 'https://carnap.io',
+        })
         .option('defaultVisibility', {
             description: 'Default visibility of newly created documents.',
             choices: ['Public', 'InstructorsOnly', 'LinkOnly', 'Private'],
-            default: 'Private'
-        })
-        .argv as Args
+            default: 'Private',
+        }).argv as Args
     // mild sin here, the reason we have to cast this is because tsc does
     // not recognize the limited values of defaultVisibility
 }
 
+/* eslint-disable no-console */
 const cliLog: Logger = {
     debug(msg) {
         console.debug(msg)
@@ -134,20 +130,21 @@ const cliLog: Logger = {
 
     warning(msg) {
         console.warn(msg)
-    }
+    },
 }
+/* eslint-enable no-console */
 
 async function cliEntry(): Promise<void> {
     const argv = parseArgs()
     const paths = JSON.parse(argv.includeFiles)
 
     if (!(paths instanceof Array)) {
-        throw new Error("paths is not a json array!")
+        throw new Error('paths is not a json array!')
     }
-    
+
     const apiKey = process.env['CARNAP_API_KEY']
     if (!apiKey) {
-        throw new Error("CARNAP_API_KEY environment variable missing")
+        throw new Error('CARNAP_API_KEY environment variable missing')
     }
 
     const myAxios = makeAxios(argv.url, apiKey)
@@ -176,4 +173,3 @@ if (process.env['GITHUB_WORKFLOW']) {
 } else {
     cliEntry()
 }
-
