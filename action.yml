@@ -5,21 +5,25 @@ inputs:
   apiKey:
     required: true
     description: >-
-      API key to use to authenticate to Carnap. Defaults to the GitHub secret
-      CARNAP_API_KEY. Do not put the API key in your workflow file.
+      API key to use to authenticate to Carnap. Do not put the API key in
+      your workflow file.
+
+
+      You should set this to something like `${{ secrets.CARNAP_API_KEY }}`.
 
   defaultVisibility:
     required: false
+    default: Private
     description: >-
       Visibility setting for newly created files. Can be Public,
       InstructorsOnly, LinkOnly or Private.
 
 
       The permissions on existing files will not be changed.
-    default: Private
 
   includeFiles:
     required: false
+    default: '["*.md"]'
     description: >-
       Files that will be uploaded to Carnap. This is in the form of a JSON
       list inside a string, containing Unix-style globs matching file names
@@ -28,12 +32,11 @@ inputs:
 
 
       The default is to take every .md file in the root directory of the project.
-    default: '["*.md"]'
 
   instanceUrl:
     required: false
-    description: "URL of the Carnap instance to deploy to"
     default: "https://carnap.io"
+    description: "URL of the Carnap instance to deploy to"
 
 runs:
   using: "node12"

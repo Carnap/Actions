@@ -45,6 +45,50 @@ jobs:
 Then, you can push some markdown to the repo to test everything works and
 shows up on your Carnap account.
 
+### Configuration reference
+
+#### `apiKey`
+
+**Required**: true
+
+API key to use to authenticate to Carnap. Do not put the API key in
+your workflow file.
+
+You should set this to something like `${{ secrets.CARNAP_API_KEY }}`.
+
+#### `defaultVisibility`
+
+**Required**: false
+
+**Default**: Private
+
+Visibility setting for newly created files. Can be `Public`,
+`InstructorsOnly`, `LinkOnly` or `Private`.
+
+The permissions on existing files will not be changed.
+
+#### `includeFiles`
+
+**Required**: false
+
+**Default**: `'["*.md"]'`
+
+Files that will be uploaded to Carnap. This is in the form of a JSON
+list inside a string, containing Unix-style globs matching file names
+to upload. These are evaluated relative to the root folder of the project
+without recursing into subdirectories.
+
+
+The default is to take every .md file in the root directory of the project.
+
+#### `instanceUrl`
+
+**Required**: false
+
+**Default**: "https://carnap.io"
+
+URL of the Carnap instance to deploy to
+
 ## Command line interface
 
 This repository also provides the `carnap` command line interface that does
