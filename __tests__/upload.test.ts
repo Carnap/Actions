@@ -1,9 +1,12 @@
 import axios from 'axios'
 jest.mock('axios')
-import fs from 'fs/promises'
-jest.mock('fs/promises')
+jest.mock('fs', () => ({
+    promises: {
+        readFile: jest.fn(),
+    },
+}))
+import {promises as fs} from 'fs'
 import {Logger, CarnapUploadJob} from '../src/upload'
-import * as CarnapApi from '../src/api'
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
 const mockedFs = fs as jest.Mocked<typeof fs>
