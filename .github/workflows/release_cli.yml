@@ -27,4 +27,4 @@ jobs:
           echo '@carnap:registry=https://npm.pkg.github.com' >> $HOME/.npmrc
           echo '//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}' >> $HOME/.npmrc
       - run: |
-          npm run publish
+          npm publish

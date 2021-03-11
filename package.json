@@ -5,7 +5,7 @@
   "main": "lib/main.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "prepublish": "tsc",
+    "prepublishOnly": "tsc",
     "build": "tsc",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
