@@ -45,6 +45,37 @@ jobs:
 Then, you can push some markdown to the repo to test everything works and
 shows up on your Carnap account.
 
+## Command line interface
+
+This repository also provides the `carnap` command line interface that does
+the same thing as the GitHub Action. If you want to use it, it's available
+via npm. You should need at least node 12.
+
+First, add the GitHub npm registry for the `@carnap` namespace:
+
+```
+$ echo '@carnap:registry=https://npm.pkg.github.com' >> $HOME/.npmrc
+```
+
+Then you can use the Carnap CLI as follows (no install 🙂):
+
+```
+$ npx @carnap/actions upload --help
+CARNAP_API_KEY=... carnap upload -b <basepath> -i '<includeFilesJsonList>' [options]
+
+Options:
+      --help               Show help                                   [boolean]
+      --version            Show version number                         [boolean]
+  -b, --basePath           base path to the files to upload  [string] [required]
+  -i, --includeFiles       JSON list of globs matching files to include
+                                                             [string] [required]
+      --url                URL to the Carnap instance to upload to
+                                         [string] [default: "https://carnap.io"]
+      --defaultVisibility  Default visibility of newly created documents.
+         [choices: "Public", "InstructorsOnly", "LinkOnly", "Private"] [default:
+                                                                      "Private"]
+```
+
 ## Troubleshooting
 
 The Carnap action has debug logging that may provide useful information to

@@ -137,7 +137,7 @@ function parseArgs(): Args {
                     default: 'Private',
                 })
                 .usage(
-                    `CARNAP_API_KEY=... $0 -b <basepath> -i '<includeFilesJsonList>' [options]`
+                    `CARNAP_API_KEY=... $0 upload -b <basepath> -i '<includeFilesJsonList>' [options]`
                 )
                 .strict()
         )
