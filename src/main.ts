@@ -147,7 +147,6 @@ function parseArgs(): Args {
     // not recognize the limited values of defaultVisibility
 }
 
-/* eslint-disable no-console */
 const cliLog: Logger = {
     debug(msg) {
         console.debug(msg)
@@ -161,7 +160,6 @@ const cliLog: Logger = {
         console.warn(msg)
     },
 }
-/* eslint-enable no-console */
 
 async function cliEntry(): Promise<void> {
     const argv = parseArgs()
@@ -182,7 +180,7 @@ async function cliEntry(): Promise<void> {
     const myAxios = makeAxios(argv.url, apiKey)
 
     myAxios.interceptors.request.use(config => {
-        console.debug(`request: ${config.method} ${config.url}`)
+        cliLog.debug(`request: ${config.method} ${config.url}`)
         return config
     })
 
@@ -194,7 +192,7 @@ async function cliEntry(): Promise<void> {
         myAxios,
         filePaths,
         argv.defaultVisibility,
-        core
+        cliLog
     ).run()
 }
 
