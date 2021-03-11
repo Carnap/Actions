@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import * as core from '@actions/core'
 import axios, {AxiosInstance} from 'axios'
 import rateLimit from 'axios-rate-limit'
@@ -5,7 +6,12 @@ import {stripIndent} from 'common-tags'
 import glob from 'glob'
 import yargs from 'yargs'
 import {DocumentPrivacy} from './api'
-import {CarnapUploadJob, documentPrivacies, isValidDocumentPrivacy, Logger} from './upload'
+import {
+    CarnapUploadJob,
+    documentPrivacies,
+    isValidDocumentPrivacy,
+    Logger,
+} from './upload'
 
 /**
  * async/Promise wrapper for the glob function that searches relative to the
@@ -91,6 +97,7 @@ async function actionsEntry(): Promise<void> {
 }
 
 interface Args {
+    _: string[]
     basePath: string
     includeFiles: string
     url: string
@@ -99,31 +106,43 @@ interface Args {
 
 function parseArgs(): Args {
     return yargs
-        .usage(
-            `CARNAP_API_KEY=... $0 -b <basepath> -i '<includeFilesJsonList>' [options]`
+        .command('upload', 'uploads files to a Carnap instance', yarg =>
+            yarg
+                .option('basePath', {
+                    alias: 'b',
+                    description: 'base path to the files to upload',
+                    type: 'string',
+                    demandOption: true,
+                })
+                .option('includeFiles', {
+                    alias: 'i',
+                    description: 'JSON list of globs matching files to include',
+                    type: 'string',
+                    demandOption: true,
+                })
+                .option('url', {
+                    description: 'URL to the Carnap instance to upload to',
+                    type: 'string',
+                    default: 'https://carnap.io',
+                })
+                .option('defaultVisibility', {
+                    description:
+                        'Default visibility of newly created documents.',
+                    choices: [
+                        'Public',
+                        'InstructorsOnly',
+                        'LinkOnly',
+                        'Private',
+                    ],
+                    default: 'Private',
+                })
+                .usage(
+                    `CARNAP_API_KEY=... $0 -b <basepath> -i '<includeFilesJsonList>' [options]`
+                )
+                .strict()
         )
-        .option('basePath', {
-            alias: 'b',
-            description: 'base path to the files to upload',
-            type: 'string',
-            demandOption: true,
-        })
-        .option('includeFiles', {
-            alias: 'i',
-            description: 'JSON list of globs matching files to include',
-            type: 'string',
-            demandOption: true,
-        })
-        .option('url', {
-            description: 'URL to the Carnap instance to upload to',
-            type: 'string',
-            default: 'https://carnap.io',
-        })
-        .option('defaultVisibility', {
-            description: 'Default visibility of newly created documents.',
-            choices: ['Public', 'InstructorsOnly', 'LinkOnly', 'Private'],
-            default: 'Private',
-        }).argv as Args
+        .demandCommand()
+        .strict().argv as Args
     // mild sin here, the reason we have to cast this is because tsc does
     // not recognize the limited values of defaultVisibility
 }
@@ -146,6 +165,9 @@ const cliLog: Logger = {
 
 async function cliEntry(): Promise<void> {
     const argv = parseArgs()
+    const command = argv._[0]
+
+    console.assert(command === 'upload')
     const paths = JSON.parse(argv.includeFiles)
 
     if (!(paths instanceof Array)) {
@@ -160,7 +182,7 @@ async function cliEntry(): Promise<void> {
     const myAxios = makeAxios(argv.url, apiKey)
 
     myAxios.interceptors.request.use(config => {
-        core.debug(`request: ${config.method} ${config.url}`)
+        console.debug(`request: ${config.method} ${config.url}`)
         return config
     })
 

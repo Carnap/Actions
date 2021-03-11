@@ -1,10 +1,11 @@
 {
-  "name": "carnap-action",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@carnap/actions",
+  "version": "1.0.4",
   "description": "Carnap deployment GitHub action",
   "main": "lib/main.js",
+  "types": "lib/index.d.ts",
   "scripts": {
+    "prepublish": "tsc",
     "build": "tsc",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
@@ -15,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Carnap/actions"
+    "url": "git+https://github.com/Carnap/Actions.git"
   },
   "keywords": [
     "actions",
@@ -48,5 +49,16 @@
     "prettier": "2.2.1",
     "ts-jest": "^26.5.3",
     "typescript": "^4.2.3"
+  },
+
+  "bin": {
+    "carnap": "lib/main.js"
+  },
+
+  "_comment": "the cache key below is a workaround for https://github.com/npm/cli/issues/2834",
+  "publishConfig": {
+    "cache": ".npm",
+    "tag": "latest",
+    "registry": "https://npm.pkg.github.com"
   }
 }

@@ -1,0 +1,27 @@
+name: 'release npm versions if version tags are made'
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run test
+      - run: |
+          npm run lint
+      - run: |
+          npm run build
+      - run: |
+          npm run package
+      - name: npm config
+        run: |
+          echo '@carnap:registry=https://npm.pkg.github.com' >> $HOME/.npmrc
+          echo '//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}' >> $HOME/.npmrc
+      - run: |
+          npm run publish

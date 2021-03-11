@@ -35,7 +35,7 @@ jobs:
         with:
           apiKey: '${{ secrets.CARNAP_API_KEY }}'
           # make any newly created documents private
-          defaultVisibility: 'private'
+          defaultVisibility: 'Private'
           # files to include in the upload (important: this must be quoted)
           includeFiles: '["*.md"]'
           instanceUrl: 'https://carnap.io'
@@ -44,3 +44,9 @@ jobs:
 
 Then, you can push some markdown to the repo to test everything works and
 shows up on your Carnap account.
+
+## Troubleshooting
+
+The Carnap action has debug logging that may provide useful information to
+diagnose issues.
+[Enable it by setting a secret on the repository called `ACTIONS_STEP_DEBUG` with a value of `true`](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging).
