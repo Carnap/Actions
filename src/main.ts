@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import axios, {AxiosInstance} from 'axios'
 import rateLimit from 'axios-rate-limit'
+import {stripIndent} from 'common-tags'
 import glob from 'glob'
 import yargs from 'yargs'
 import {DocumentPrivacy} from './api'
@@ -40,6 +41,13 @@ function makeAxios(instanceUrl: string, apiKey: string): AxiosInstance {
 async function actionsEntry(): Promise<void> {
     try {
         const apiKey = core.getInput('apiKey')
+        if (!apiKey) {
+            core.warning(stripIndent`
+                No API key is configured. Files will not be uploaded.
+                help: the API key is configured as the setting 'apiKey' in the actions yml file
+                      Is the secret missing from the repository settings?`)
+            return
+        }
         core.setSecret(apiKey)
         const instanceUrl = core.getInput('instanceUrl')
         core.info(`Uploading to ${instanceUrl}`)

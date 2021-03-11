@@ -1,5 +1,5 @@
 import {basename} from 'path'
-import {readFile} from 'fs/promises'
+import {promises as fsp} from 'fs'
 import {AxiosInstance} from 'axios'
 import * as CarnapApi from './api'
 
@@ -109,7 +109,7 @@ export class CarnapUploadJob {
         // next upload all the files
         Promise.all(
             Object.entries(filenameIds).map(async ([name, id]) => {
-                const fileContents = await readFile(basenameToFullPath[name])
+                const fileContents = await fsp.readFile(basenameToFullPath[name])
                 await this.myAxios.put(
                     `/instructors/${ident}/documents/${id}/data`,
                     fileContents
