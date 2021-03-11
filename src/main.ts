@@ -5,7 +5,7 @@ import {stripIndent} from 'common-tags'
 import glob from 'glob'
 import yargs from 'yargs'
 import {DocumentPrivacy} from './api'
-import {CarnapUploadJob, isValidDocumentPrivacy, Logger} from './upload'
+import {CarnapUploadJob, documentPrivacies, isValidDocumentPrivacy, Logger} from './upload'
 
 /**
  * async/Promise wrapper for the glob function that searches relative to the
@@ -66,7 +66,9 @@ async function actionsEntry(): Promise<void> {
 
         const defaultVisibility = core.getInput('defaultVisibility')
         if (!isValidDocumentPrivacy(defaultVisibility)) {
-            throw new Error('default visibility is not valid')
+            throw new Error(stripIndent`
+                default visibility ${defaultVisibility} is not valid
+                help: possible values are ${documentPrivacies.join(',')}`)
         }
 
         // for now we assume the workdir is the repo. TODO: it might not be

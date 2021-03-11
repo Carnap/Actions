@@ -136,8 +136,10 @@ export class CarnapUploadJob {
     }
 }
 
+export const documentPrivacies = ['Public', 'InstructorsOnly', 'LinkOnly', 'Private']
+
 export function isValidDocumentPrivacy(
     priv: string
 ): priv is CarnapApi.DocumentPrivacy {
-    return ['Public', 'InstructorsOnly', 'LinkOnly', 'Private'].includes(priv)
+    return documentPrivacies.includes(priv)
 }
