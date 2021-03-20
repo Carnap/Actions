@@ -9,7 +9,8 @@ inputs:
       your workflow file.
 
 
-      You should set this to something like `${{{{ secrets.CARNAP_API_KEY }}}}`.
+      You should set this to something like `$ {{ secrets.CARNAP_API_KEY }}`,
+      without the space after the dollar sign.
 
   defaultVisibility:
     required: false
