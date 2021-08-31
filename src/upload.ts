@@ -51,11 +51,11 @@ export class CarnapUploadJob {
         // maps from basename to full path
         const basenameToFullPath: {[basename: string]: string} = {}
         for (const fp of this.filePaths) {
-            this.logger.debug(`will upload ${fp}`)
+            this.logger.info(`Will upload ${fp}`)
             const fileBasename = basename(fp)
 
             if (basenameToFullPath[fileBasename]) {
-                this.logger.warning(`filename ${fp} duplicates filename \
+                this.logger.warning(`Filename ${fp} duplicates filename \
                     ${basenameToFullPath[fileBasename]}`)
             }
             basenameToFullPath[basename(fp)] = fp
@@ -71,7 +71,7 @@ export class CarnapUploadJob {
         const toCreate = []
         for (const fp of Object.keys(basenameToFullPath)) {
             if (!basenameToId[basename(fp)]) {
-                this.logger.debug(`to create: ${fp}`)
+                this.logger.info(`Will create: ${fp}`)
                 toCreate.push(fp)
             }
         }
@@ -112,6 +112,7 @@ export class CarnapUploadJob {
                 const fileContents = await fsp.readFile(
                     basenameToFullPath[name]
                 )
+                this.logger.info(`==> Upload document ${name}: ${id}`)
                 await this.myAxios.put(
                     `/instructors/${ident}/documents/${id}/data`,
                     fileContents
@@ -124,6 +125,7 @@ export class CarnapUploadJob {
         ident: string,
         filename: string
     ): Promise<[string, number]> {
+        this.logger.info(`==> Create document ${filename}`)
         const newId = await this.myAxios.post<number>(
             `/instructors/${ident}/documents`,
             {
