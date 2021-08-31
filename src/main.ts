@@ -39,7 +39,7 @@ function makeAxios(instanceUrl: string, apiKey: string): AxiosInstance {
             },
         }),
         {
-            maxRPS: 1,
+            maxRPS: 5,
         }
     )
 }
